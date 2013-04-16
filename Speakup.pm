@@ -8,7 +8,7 @@
 #########################################################################
 
 package Speech::Speakup;
-$VERSION = '1.00';   # 
+$VERSION = '1.01';   # 
 my $stupid_bloody_warning = $VERSION;  # circumvent -w warning
 require Exporter;
 @ISA = qw(Exporter);
@@ -177,7 +177,7 @@ or it can be software.
 The most common software synth for I<Linux> is I<espeak>,
 and I<flite> is also important.
 
-This is Speech::Speakup version 1.00
+This is Speech::Speakup version 1.01
 
 =head1 SUBROUTINES
 
@@ -224,14 +224,50 @@ It returns success or failure.
 
 =back
 
-=head1 PARAMETERS
+=head1 SPEAKUP_SET PARAMETERS
 
-Most I<speakup> parameters are 0 to 10, default 5.
+The parameters I<key_echo> and I<no_interrupt> are boolean: 0 or 1.
+
 The important I<silent> parameter is a bitmap,
 but its bits are not well documented;
 it is known that B<7> means silent and B<4> restores speech.
-The I<synth> parameter is a string,
+
+The I<punc_some>, I<punc_most> and I<punc_all> parameters
+are strings containing lists of punctuation characters.
+The I<reading_punc> parameter can then be set to B<0>, B<1>, B<2> or B<3>
+in order to select which punctuation characters are
+pronounced when reading (for example with Keypad-8),
+and the I<punc_level> parameter can be set likewise
+to select which punctuation characters are
+pronounced when the computer writes them to the screen.
+B<1> selects I<punc_some>,
+B<2> selects I<punc_most>,
+B<3> selects I<punc_all>, and
+B<0> supresses pronounciation of any punctuation.
+For reading prose, you'll probably prefer B<1>,
+and for a programming languange probably B<3>.
+
+The speakup parameter I<synth> is a string,
 which must exist as a subdirectory of the speakup parameter directory.
+
+The parameter I<synth_direct> is not a parameter,
+it is a direct input to the synthesiser;
+use this if your application needs to say something.
+The I<synth_direct> input bypasses I<speakup>,
+and works even if the I<silent> parameter is set to B<7>.
+It seems to use I<punc_some>,
+regardless of the settings of I<punc_level> or I<reading_punc>.
+
+=head1 SYNTH_SET PARAMETERS
+
+The I<punct> and I<tone> parameters may be  set to B<0>, B<1> or B<2>.
+
+I<freq> seems to control the expressiveness of the voice
+(the amount by which its frequency varies during speech),
+whereas I<pitch> seems to adjust between a low voice and a high voice.
+
+The important I<vol>, I<pitch>, I<freq> and I<rate> parameters
+are B<0> to B<9>, default B<5>.
 
 =head1 EXPORT_OK SUBROUTINES
 
@@ -241,9 +277,26 @@ so if you want to import all these you should:
 
  import Speech::Speakup qw(:ALL);
 
+=head1 EXAMPLES
+
+A simple example in the I<examples/> subdirectory
+is already a useful application:
+
+=over 3
+
+=item speakup_params
+
+I<speakup_params> lists, and then allows you to modify,
+all the I<speakup> and I<synth> parameters.
+It uses the I<Term::Clui> module to provide the user-interface.
+
+=back
+
 =head1 DEPENDENCIES
 
-It requires Exporter, which is core Perl.
+It requires only Exporter, which is core Perl.
+
+The example I<speakup_params> requires also the CPAN module I<Term::Clui>
 
 =head1 AUTHOR
 
@@ -266,6 +319,7 @@ Peter J Billam www.pjb.com.au/comp/contact.html
  http://search.cpan.org/perldoc?Speech::eSpeak
  http://linux-speakup.org/distros.html
  http://the-brannons.com/tarch/
+ http://search.cpan.org/perldoc?Term::Clui
  http://www.pjb.com.au/
  espeakup(1)
  emacspeak(1)
@@ -274,6 +328,6 @@ Peter J Billam www.pjb.com.au/comp/contact.html
 
 There should soon be an equivalent Python3 module
 with the same calling interface, at
-http://cpansearch.perl.org/src/PJB/Speech-Speakup-1.00/py/SpeechSpeakup.py
+http://cpansearch.perl.org/src/PJB/Speech-Speakup-1.01/py/SpeechSpeakup.py
 
 =cut
