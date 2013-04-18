@@ -1,2 +1,3 @@
-201304?? 1.01
+20130418 1.02 improved documentation
+20130416 1.01 added examples/speakup_params
 20130411 1.00 Speech::Speakup gives access to screen-reader parameters

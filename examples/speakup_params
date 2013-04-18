@@ -12,9 +12,6 @@ use open ':locale';
 eval 'require Speech::Speakup'; if ($@) { die
 	"you'll need to install the Speech::Speakup module from www.cpan.org\n";
 }
-eval 'require Term::Clui'; if ($@) { die
-	"you'll need to install the Term::Clui module from www.cpan.org\n";
-}
 
 my $List = 0;
 while ($ARGV[$[] =~ /^-([a-z])/) {
@@ -70,6 +67,10 @@ if ($line) { print $line."\n"; }
 print "\n";
 if ($List) { exit; }
 
+eval 'require Torm::Clui'; if ($@) { die
+	"you'll need to install the Term::Clui module from www.cpan.org\n";
+}
+
 while (1) {
 	my $param = Term::Clui::choose('Adjust which speakup parameter ?',
 		@speakup_settables);
@@ -105,11 +106,13 @@ while (1) {
 	} elsif ($param eq 'punc_level' or $param eq 'reading_punc') {
 		@range = (0,1,2,3);
 	} elsif ($param eq 'silent') {
-		@range = (4,7);
+		@range = (0..7);
 	}
 	my $new = Term::Clui::choose($question, @range);
-	if (defined $new) { Speech::Speakup::speakup_set($param, $new) }
-	if ($Speech::Speakup::Message) { warn "$Speech::Speakup::Message\n"; }
+	if (defined $new) {
+		Speech::Speakup::speakup_set($param, $new);
+		if ($Speech::Speakup::Message) { warn "$Speech::Speakup::Message\n"; }
+	}
 }
 exit 0;
 
@@ -132,8 +135,11 @@ This script, conceived as an example of the I<Speech::Speakup> module,
 could actually be useful to I<speakup> users in general.
 
 By default, it lists the current values of the parameters
-of the I<speakup> screen-reader, and then eneters an interactive
+of the I<speakup> screen-reader, and then enters an interactive
 dialogue which allows the user to adjust those parameters.
+
+The parameters are documented in
+ perldoc Speech::Speakup
 
 It uses the I<Term::Clui> CPAN module to provide the user interface.
 
@@ -166,6 +172,7 @@ Based on the I<Speech::Speakup> and I<Term::Clui> CPAN modules
 
 =head1 SEE ALSO
 
+ perldoc Speech::Speakup
  http://search.cpan.org/perldoc?Speech::Speakup
  http://search.cpan.org/perldoc?Term::Clui
  http://linux-speakup.org

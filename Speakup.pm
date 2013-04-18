@@ -8,7 +8,7 @@
 #########################################################################
 
 package Speech::Speakup;
-$VERSION = '1.01';   # 
+$VERSION = '1.02';   # 
 my $stupid_bloody_warning = $VERSION;  # circumvent -w warning
 require Exporter;
 @ISA = qw(Exporter);
@@ -19,11 +19,14 @@ require Exporter;
 no strict; no warnings;
 
 $Speech::Speakup::Message = undef;
-my $SpDir;
+$Speech::Speakup::SpDir   = undef;
 foreach ('/sys/accessibility/speakup','/proc/speakup') {
     if (-d $_) { $SpDir = $_; }
 }
-if (!$SpDir) { die "can't find the speakup directory\n"; }
+if (!$SpDir) { die ; }
+# eval 'require Speech::Speakup';
+#  sets $@ to  "Can't locate ..." if Speech::Speakup is not installed
+#  sets $@ to  "Compilation failed ..." if $SpDir is not present
 
 use open ':locale';  # the open pragma was introduced in 5.8.6
 
@@ -158,7 +161,7 @@ A screen-reader allows blind or visually-impaired people
 to hear text as it appears on the screen,
 and to review text already displayed anywhere on the screen.
 I<Speakup> will only run on the I<linux> consoles,
-but is powerful and ergonomic, and runs during the boot process.
+but is powerful and ergonomic, and can run during the boot process.
 The other important screen-reader is I<yasr>,
 which runs in user-space and is very portable, but has less features.
 
@@ -177,7 +180,17 @@ or it can be software.
 The most common software synth for I<Linux> is I<espeak>,
 and I<flite> is also important.
 
-This is Speech::Speakup version 1.01
+There are also some files in I</proc> or I</sys> determining
+things such as how the various punctuation parameters are to be pronounced.
+These can not be edited in situ.
+You should use the I<speakupconf> utility
+(in debian it's in the I<speakup-tools> package)
+to save an aside-copy, then edit that, then reload:
+ speakupconf save
+ vi ~/.speakup/i18n/characters
+ speakupconf load
+
+This is Speech::Speakup version 1.02
 
 =head1 SUBROUTINES
 
@@ -228,9 +241,10 @@ It returns success or failure.
 
 The parameters I<key_echo> and I<no_interrupt> are boolean: 0 or 1.
 
-The important I<silent> parameter is a bitmap,
-but its bits are not well documented;
-it is known that B<7> means silent and B<4> restores speech.
+The important I<silent> parameter is a bitmap.
+B<7> means immediate silence flushing all pending text;
+B<5> speaks the pending text and then goes silent;
+then B<4> restores speech.
 
 The I<punc_some>, I<punc_most> and I<punc_all> parameters
 are strings containing lists of punctuation characters.
@@ -253,18 +267,27 @@ which must exist as a subdirectory of the speakup parameter directory.
 The parameter I<synth_direct> is not a parameter,
 it is a direct input to the synthesiser;
 use this if your application needs to say something.
+It imposes a length-limit of 250 bytes.
 The I<synth_direct> input bypasses I<speakup>,
 and works even if the I<silent> parameter is set to B<7>.
-It seems to use I<punc_some>,
-regardless of the settings of I<punc_level> or I<reading_punc>.
+Its punctuation-level ignores the settings of I<punc_level> or I<reading_punc>,
+and is controled by the synth I<punct> parameter, see below.
+
+The authoritative documentation of these parameters is the source code,
+in the file I<drivers/staging/speakup/kobjects.c>
 
 =head1 SYNTH_SET PARAMETERS
 
 The I<punct> and I<tone> parameters may be  set to B<0>, B<1> or B<2>.
 
-I<freq> seems to control the expressiveness of the voice
+The I<punct> parameter controls the punctuation-level
+applied to the I<synth_direct> input>.
+When I<punct> is B<0> or B<2>, then B<# $ % & * + / = @> are pronounced,
+and when I<punct> is B<1> all punctuation seems to be pronounced.
+
+I<freq> controls the expressiveness of the voice
 (the amount by which its frequency varies during speech),
-whereas I<pitch> seems to adjust between a low voice and a high voice.
+whereas I<pitch> adjusts between a low voice and a high voice.
 
 The important I<vol>, I<pitch>, I<freq> and I<rate> parameters
 are B<0> to B<9>, default B<5>.
@@ -273,9 +296,26 @@ are B<0> to B<9>, default B<5>.
 
 No routines are exported by default,
 but they are exported under the I<ALL> tag,
-so if you want to import all these you should:
+so if you want to import them all you should:
 
  import Speech::Speakup qw(:ALL);
+
+=head1 PACKAGE VARIABLES
+
+=over 3
+
+=item I<$Speech::Speakup::Message>
+
+Whenever a subroutine call fails,
+the $Message variable is set with an appropriate error message.
+If the call succeeds it is set to I<undef>.
+
+=item I<$Speech::Speakup::SpDir>
+
+The $SpDir variable is set to the the speakup-directory,
+which can be in I</proc> but is usually in I</sys/accesibility>.
+
+=back
 
 =head1 EXAMPLES
 
@@ -328,6 +368,6 @@ Peter J Billam www.pjb.com.au/comp/contact.html
 
 There should soon be an equivalent Python3 module
 with the same calling interface, at
-http://cpansearch.perl.org/src/PJB/Speech-Speakup-1.01/py/SpeechSpeakup.py
+http://cpansearch.perl.org/src/PJB/Speech-Speakup-1.02/py/SpeechSpeakup.py
 
 =cut
