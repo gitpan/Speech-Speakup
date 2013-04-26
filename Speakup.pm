@@ -8,7 +8,7 @@
 #########################################################################
 
 package Speech::Speakup;
-$VERSION = '1.02';   # 
+$VERSION = '1.03';   # 
 my $stupid_bloody_warning = $VERSION;  # circumvent -w warning
 require Exporter;
 @ISA = qw(Exporter);
@@ -73,9 +73,12 @@ sub get { my ($dir, $param) = @_;
 		$Message = "can't open $dir/$param: $!";
 		return undef;
 	} else {
-		my $value = <F>; close F; $value =~ s/\s+$//;
+		my @lines = (<F>); close F;
 		$Message = undef;
-		return $value
+		# 1.03 keymap is 65 lines long ! the others are only one line.
+		if (1 < @lines) { return join('', @lines);
+		} else { my $value = $lines[$[]; $value =~ s/\s+$//; return $value;
+		}
 	}
 }
 
@@ -190,7 +193,7 @@ to save an aside-copy, then edit that, then reload:
  vi ~/.speakup/i18n/characters
  speakupconf load
 
-This is Speech::Speakup version 1.02
+This is Speech::Speakup version 1.03
 
 =head1 SUBROUTINES
 
@@ -207,6 +210,11 @@ of the readable I<speakup> parameters.
 When called with one of those parameters as an argument,
 I<speakup_get> returns the current value of that parameter,
 or I<undef> if the get fails.
+
+Most parameters are only one line long,
+and are returned without any terminating new-line.
+The (read-only) I<keymap> and I<version> parameters are longer;
+they are returned as a scalar text string containing embedded new-lines.
 
 =item I<speakup_set>() or I<speakup_set>($param, $value);
 
@@ -281,16 +289,16 @@ in the file I<drivers/staging/speakup/kobjects.c>
 The I<punct> and I<tone> parameters may be  set to B<0>, B<1> or B<2>.
 
 The I<punct> parameter controls the punctuation-level
-applied to the I<synth_direct> input>.
+applied to the I<synth_direct> input.
 When I<punct> is B<0> or B<2>, then B<# $ % & * + / = @> are pronounced,
 and when I<punct> is B<1> all punctuation seems to be pronounced.
+
+The important I<vol>, I<pitch>, I<freq> and I<rate> parameters
+are B<0> to B<9>, default B<5>.
 
 I<freq> controls the expressiveness of the voice
 (the amount by which its frequency varies during speech),
 whereas I<pitch> adjusts between a low voice and a high voice.
-
-The important I<vol>, I<pitch>, I<freq> and I<rate> parameters
-are B<0> to B<9>, default B<5>.
 
 =head1 EXPORT_OK SUBROUTINES
 
@@ -361,6 +369,7 @@ Peter J Billam www.pjb.com.au/comp/contact.html
  http://the-brannons.com/tarch/
  http://search.cpan.org/perldoc?Term::Clui
  http://www.pjb.com.au/
+ http://www.pjb.com.au/blin/free/speakup_params
  espeakup(1)
  emacspeak(1)
  espeak(1)
@@ -368,6 +377,6 @@ Peter J Billam www.pjb.com.au/comp/contact.html
 
 There should soon be an equivalent Python3 module
 with the same calling interface, at
-http://cpansearch.perl.org/src/PJB/Speech-Speakup-1.02/py/SpeechSpeakup.py
+http://cpansearch.perl.org/src/PJB/Speech-Speakup-1.03/py/SpeechSpeakup.py
 
 =cut

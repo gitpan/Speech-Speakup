@@ -6,9 +6,11 @@
 #     This script is free software; you can redistribute it and/or      #
 #            modify it under the same terms as Perl itself.             #
 #########################################################################
-use Test::Simple tests => 12;
+use Test::Simple tests => 15;
 
 use Speech::Speakup();
+
+ok (-d $Speech::Speakup::SpDir, '$Speech::Speakup::SpDir was correctly set');
 
 my @gettables = Speech::Speakup::speakup_get();
 my $n_gettables = scalar @gettables;
@@ -34,6 +36,10 @@ my $tmp = Speech::Speakup::speakup_get('synth');
 ok ($tmp, "synth was set to $tmp");
 ok (! $Speech::Speakup::Message, '$Speech::Speakup::Message was not set');
 
+my @lines = split("\n", Speech::Speakup::speakup_get('keymap'));
+$tmp = scalar @lines;
+ok ($tmp > 20, "keymap parameter was $tmp lines long");
+
 $tmp = Speech::Speakup::speakup_get('SxDcFvGb99');
 ok (!$tmp, "attempting to get an inexistent speakup parameter failed");
 ok ($Speech::Speakup::Message,
@@ -49,6 +55,11 @@ ok ($n_settables > 5, "there are $n_settables settable synth parameters");
 
 my $vol = Speech::Speakup::synth_get('vol');
 ok (defined $vol, "synth vol was $vol");
+
+my $vol_m_1 = $vol - 1;
+$rc = Speech::Speakup::synth_set('vol', $vol_m_1);
+my $new_vol = Speech::Speakup::synth_get('vol');
+ok ($new_vol == $vol_m_1, "set synth vol to $vol_m_1");
 
 $rc = Speech::Speakup::synth_set('vol', $vol);
 ok ($rc, "set synth vol back to $vol");

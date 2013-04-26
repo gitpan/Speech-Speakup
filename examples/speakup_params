@@ -37,8 +37,14 @@ my @speakup_settables = Speech::Speakup::speakup_set();
 my @synth_settables   = Speech::Speakup::synth_set();
 
 my $line = '';
+my $version = Speech::Speakup::speakup_get('version');
+$version =~ s/\s+$//;
+$version =~ s/\n/, /;
+print "$version\n\n";
 print "Speakup parameters:\n";
 foreach my $param (@speakup_gettables) {
+	if ($param eq 'keymap') { next; }
+	if ($param eq 'version') { next; }
 	my $s =  "$param ".Speech::Speakup::speakup_get($param);
 	if (62 < length $line.$s) {
 		print $line."\n";
@@ -67,7 +73,7 @@ if ($line) { print $line."\n"; }
 print "\n";
 if ($List) { exit; }
 
-eval 'require Torm::Clui'; if ($@) { die
+eval 'require Term::Clui'; if ($@) { die
 	"you'll need to install the Term::Clui module from www.cpan.org\n";
 }
 
