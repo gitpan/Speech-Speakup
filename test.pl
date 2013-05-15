@@ -6,9 +6,14 @@
 #     This script is free software; you can redistribute it and/or      #
 #            modify it under the same terms as Perl itself.             #
 #########################################################################
-use Test::Simple tests => 15;
+use Test::Simple tests => 16;
 
 use Speech::Speakup();
+
+if (! $Speech::Speakup::SpDir) {
+	foreach (1..16) { ok (1, 'Speakup not running; skipping all tests'); }
+	exit;
+}
 
 ok (-d $Speech::Speakup::SpDir, '$Speech::Speakup::SpDir was correctly set');
 
@@ -60,6 +65,9 @@ my $vol_m_1 = $vol - 1;
 $rc = Speech::Speakup::synth_set('vol', $vol_m_1);
 my $new_vol = Speech::Speakup::synth_get('vol');
 ok ($new_vol == $vol_m_1, "set synth vol to $vol_m_1");
+
+my $newvol = Speech::Speakup::synth_get('vol');
+ok ("$newvol" eq "$vol_m_1", "synth vol was $newvol");
 
 $rc = Speech::Speakup::synth_set('vol', $vol);
 ok ($rc, "set synth vol back to $vol");

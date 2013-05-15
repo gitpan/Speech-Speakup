@@ -8,7 +8,7 @@
 #########################################################################
 
 package Speech::Speakup;
-$VERSION = '1.03';   # 
+$VERSION = '1.04';   # 
 my $stupid_bloody_warning = $VERSION;  # circumvent -w warning
 require Exporter;
 @ISA = qw(Exporter);
@@ -23,7 +23,7 @@ $Speech::Speakup::SpDir   = undef;
 foreach ('/sys/accessibility/speakup','/proc/speakup') {
     if (-d $_) { $SpDir = $_; }
 }
-if (!$SpDir) { die ; }
+# if (!$SpDir) { die ; }  # results in 100% failure for CPAN-testers :-(
 # eval 'require Speech::Speakup';
 #  sets $@ to  "Can't locate ..." if Speech::Speakup is not installed
 #  sets $@ to  "Compilation failed ..." if $SpDir is not present
@@ -193,7 +193,7 @@ to save an aside-copy, then edit that, then reload:
  vi ~/.speakup/i18n/characters
  speakupconf load
 
-This is Speech::Speakup version 1.03
+This is Speech::Speakup version 1.04
 
 =head1 SUBROUTINES
 
@@ -377,6 +377,6 @@ Peter J Billam www.pjb.com.au/comp/contact.html
 
 There should soon be an equivalent Python3 module
 with the same calling interface, at
-http://cpansearch.perl.org/src/PJB/Speech-Speakup-1.03/py/SpeechSpeakup.py
+http://cpansearch.perl.org/src/PJB/Speech-Speakup-1.04/py/SpeechSpeakup.py
 
 =cut

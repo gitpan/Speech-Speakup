@@ -1,3 +1,4 @@
+20130514 1.04 test.pl skips all tests if Speakup not running
 20130419 1.03 speakup_params fixed, $SpDir introduced, keymap param fixed
 20130418 1.02 improved documentation
 20130416 1.01 added examples/speakup_params
